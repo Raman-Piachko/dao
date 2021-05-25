@@ -20,15 +20,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.rd.autocode.util.BigIntegerUtil.getBigInteger;
+
 public class EmployeeDaoImpl implements EmployeeDao {
     private static final String SQL_QUERY_SELECT_BY_ID = "SELECT * FROM employee WHERE id = ?";
+    private static final String SQL_QUERY_SELECT_ALL = "SELECT * FROM employee";
     private static final String SQL_QUERY_SELECT_BY_MANAGER = "SELECT * FROM employee WHERE manager = ?";
     private static final String SQL_QUERY_SELECT_BY_DEPARTMENT =
             "SELECT * FROM employee WHERE department = ?";
     private static final String SQL_QUERY_DELETE = "DELETE FROM employee WHERE id = %s";
     private static final String SQL_QUERY_INSERT = "INSERT INTO employee (id, firstname, lastname, middlename," +
             " position, hiredate, salary, manager, department) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')";
-    private static final String SQL_QUERY_SELECT_ALL = "SELECT * FROM employee";
     private static final String SQL_QUERY_UPDATE = "UPDATE employee SET " +
             "firstname = '%s', " +
             "lastname = '%s', " +
@@ -61,11 +63,11 @@ public class EmployeeDaoImpl implements EmployeeDao {
                     employee = Optional.of(createEmployee(resultSet));
                 }
             }
+            return employee;
         } catch (SQLException e) {
             throw new DaoException("Something went wrong at getById", e);
         }
 
-        return employee;
     }
 
 
@@ -79,11 +81,10 @@ public class EmployeeDaoImpl implements EmployeeDao {
                 Employee employee = createEmployee(resultSet);
                 employees.add(employee);
             }
+            return employees;
         } catch (SQLException e) {
             throw new DaoException("Something went wrong at getAll", e);
         }
-
-        return employees;
     }
 
     @Override
@@ -142,12 +143,10 @@ public class EmployeeDaoImpl implements EmployeeDao {
                     employees.add(employee);
                 }
             }
-
+            return employees;
         } catch (SQLException e) {
             throw new DaoException("Something went wrong at getByDepartment", e);
         }
-
-        return employees;
     }
 
     @Override
@@ -162,29 +161,25 @@ public class EmployeeDaoImpl implements EmployeeDao {
                     employees.add(employee);
                 }
             }
+            return employees;
         } catch (SQLException e) {
             throw new DaoException("Something went wrong at getByManager", e);
         }
-
-        return employees;
     }
 
     private Employee createEmployee(ResultSet resultSet) {
-        Employee employee;
         try {
             Position position = getPosition(resultSet);
             FullName fullName = getFullName(resultSet);
-            BigInteger id = BigInteger.valueOf(resultSet.getInt(COLUMN_ID));
+            BigInteger id = getBigInteger(resultSet,COLUMN_ID);
             LocalDate hired = getHired(resultSet);
             BigDecimal salary = resultSet.getBigDecimal(COLUMN_SALARY);
-            BigInteger managerId = new BigInteger(String.valueOf(resultSet.getInt(COLUMN_MANAGER)));
-            BigInteger depatmentId = new BigInteger(String.valueOf(resultSet.getInt(COLUMN_DEPARTMENT)));
-            employee = new Employee(id, fullName, position, hired, salary, managerId, depatmentId);
+            BigInteger managerId = getBigInteger(resultSet, COLUMN_MANAGER);
+            BigInteger depatmentId = getBigInteger(resultSet, COLUMN_DEPARTMENT);
+            return new Employee(id, fullName, position, hired, salary, managerId, depatmentId);
         } catch (SQLException e) {
             throw new DaoException("Something went wrong at createEmployee", e);
         }
-
-        return employee;
     }
 
     private LocalDate getHired(ResultSet resultSet) throws SQLException {

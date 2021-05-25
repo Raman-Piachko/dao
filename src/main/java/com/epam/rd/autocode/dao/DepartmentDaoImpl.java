@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.rd.autocode.util.BigIntegerUtil.getBigInteger;
+
 public class DepartmentDaoImpl implements DepartmentDao {
     private static final String SQL_QUERY_SELECT_BY_ID = "SELECT * FROM department WHERE id = ?";
     private static final String SQL_QUERY_DELETE = "DELETE FROM department WHERE id = ?";
@@ -100,7 +102,7 @@ public class DepartmentDaoImpl implements DepartmentDao {
     private Department createDepartment(ResultSet resultSet) {
         Department department;
         try {
-            BigInteger id = BigInteger.valueOf(resultSet.getInt(COLUMN_ID));
+            BigInteger id = getBigInteger(resultSet,COLUMN_ID);
             String name = resultSet.getString(COLUMN_NAME);
             String location = resultSet.getString(COLUMN_LOCATION);
             department = new Department(id, name, location);
